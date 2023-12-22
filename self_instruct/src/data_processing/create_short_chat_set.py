@@ -195,14 +195,17 @@ def main(train_path, val_path):
     border = int(0.95 * len(records))
     train_records = records[:border]
     val_records = records[border:]
-    with open(train_path, "w") as w:
+    with open(train_path, "w", encoding="utf8") as w:
         for record in train_records:
             w.write(json.dumps(record, ensure_ascii=False).strip() + "\n")
-    with open(val_path, "w") as w:
+    with open(val_path, "w", encoding="utf8") as w:
         for record in val_records:
             w.write(json.dumps(record, ensure_ascii=False).strip() + "\n")
 
 
-train_path = sys.argv[1]
-val_path = sys.argv[2]
-main(train_path, val_path)
+if len(sys.argv) >= 3:
+    train_path = sys.argv[1]
+    val_path = sys.argv[2]
+    main(train_path, val_path)
+else:
+    print("System arguments not passed.")
