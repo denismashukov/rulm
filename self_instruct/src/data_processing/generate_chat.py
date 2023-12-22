@@ -10,7 +10,7 @@ from src.util.openai import openai_batch_completion, OpenAIDecodingArguments
 
 
 def encode_prompt(record, template_path):
-    with open(template_path) as f:
+    with open(template_path, encoding="utf8") as f:
         template = Template(f.read())
     return template.render(seed=record["seed"].strip()).strip() + "\n"
 

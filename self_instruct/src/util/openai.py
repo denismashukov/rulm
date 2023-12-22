@@ -32,21 +32,33 @@ def openai_completion(
     decoding_args = copy.deepcopy(decoding_args)
     assert decoding_args.n == 1
     while True:
+        client = openai.OpenAI(
+            # defaults to os.environ.get("OPENAI_API_KEY")
+            api_key="private",
+        )
         try:
-            completions = openai.ChatCompletion.create(
+            completions = client.chat.completions.create(
                 messages=messages,
                 model=model_name,
                 **decoding_args.__dict__
             )
             break
-        except openai.error.OpenAIError as e:
+        except openai.OpenAIError as e:
             logging.warning(f"OpenAIError: {e}.")
             if "Please reduce" in str(e):
                 decoding_args.max_tokens = int(decoding_args.max_tokens * 0.8)
                 logging.warning(f"Reducing target length to {decoding_args.max_tokens}, Retrying...")
+            elif "Incorrect API key" in str(e):
+                logging.error(f"OpenAI authentication error: {e}.")
+                raise Exception("OpenAI authentication error")
             else:
                 logging.warning("Hit request rate limit; retrying...")
                 time.sleep(sleep_time)
+
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}.")
+            raise e
+
     return completions.choices[0]
 
 
